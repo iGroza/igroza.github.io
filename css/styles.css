@@ -32,7 +32,7 @@ body {
     padding-top: 65px
 }
 
-.header__text{
+.header__text {
     font-family: open sans, Arial, Helvetica Neue, sans-serif;
     width: 100%;
     font-size: 25px;
@@ -71,19 +71,55 @@ body {
     background: rgb(221, 221, 221, 0.3);
     color: #262626;
     text-align: left;
-    line-height: 1; 
+    line-height: 1;
     max-width: 50%;
     max-height: 50%;
-    padding: 20px 40px;
     margin: 40px auto;
     outline: none;
     -webkit-border-radius: 1px;
     -moz-border-radius: 1px;
     border-radius: 1px;
-    backdrop-filter: blur(10px);  
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
+.container__content {
+    padding: 20px 40px;
+}
+
+.container__slider {
+    height: 100%;
+    width: 100%;
+}
+
+.slider__item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+    height: 30vw;
+    background: url(../images/test.gif) center center no-repeat;
+    background-size: cover;
+}
+
+.slider__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 30%;
+    opacity: 0.1;
+    color: #fff;
+    transition: opacity 250ms;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    background: rgb(0, 0, 0, 0.5);
+}
+
+.slider__item:hover .slider__text {
+    opacity: 1;
+}
 
 @media(max-width:1280px) {
     .container__header {

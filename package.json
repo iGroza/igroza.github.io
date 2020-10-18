@@ -1,0 +1,19 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "Пару лет писал на java примитивные приложения и игры`(libgdx)` под `Android`, решил использовать свои навыки для заработка, освоил `js`, `react native`, `vue`, `node js`, сейчас работаю `fullstack` js около года.  Умею немного на `objective-c` и `swift` - для написания плагина под `Cordova` хватило. Знаю \"сухой\" технический `английский` на уровне понимания документации :)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iGroza/igroza.github.io.git"
+  },
+  "author": "Kirill Ageychenko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iGroza/igroza.github.io/issues"
+  },
+  "homepage": "https://github.com/iGroza/igroza.github.io#readme"
+}
