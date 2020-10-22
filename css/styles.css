@@ -93,7 +93,17 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
+    box-sizing: border-box;
+    position: relative;
 }
+
+.slider__items{
+ width: 100%;
+ display: flex;
+ box-sizing: border-box;
+ justify-content: end
+}
+
 
 .slider__control:hover{
     background: rgb(0, 0, 0, 0.1);
@@ -101,12 +111,14 @@ body {
 }
 
 .slider__control{
+    box-sizing: border-box;
     outline: none;
     position: absolute;
     color: #fff;
     padding: 3%;
     opacity: 0.5;
-    transition: background 150ms
+    transition: background 150ms;
+    z-index: 1;
 }
 
 .slider__control:last-of-type{
@@ -119,8 +131,9 @@ body {
     justify-content: flex-end;
     width: 100%;
     height: 45vw;
-    background: url(../images/test.gif) center center no-repeat;
+    background: url(../images/test0.gif) center center no-repeat;
     background-size: cover;
+    transition: all 500ms
 }
 
 .slider__text {
