@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/iGroza/igroza.github.io/issues"
   },
-  "homepage": "https://github.com/iGroza/igroza.github.io#readme"
+  "homepage": "https://github.com/iGroza/igroza.github.io#readme",
+  "dependencies": {
+    "uuid": "^8.3.1"
+  }
 }

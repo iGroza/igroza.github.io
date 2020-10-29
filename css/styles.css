@@ -1,12 +1,13 @@
 body, html {
     height: 100%;
     margin: 0;
-    height: 100vh
+    height: 100vh;
+    overflow-x: hidden;
 }
 
 body {
     font-family: roboto, Arial, Helvetica Neue, sans-serif;
-    font-size: 15px
+    font-size: 15px;
 }
 
 .container {
@@ -118,7 +119,7 @@ body {
     padding: 3%;
     opacity: 0.5;
     transition: background 150ms;
-    z-index: 1;
+    z-index: 10;
 }
 
 .slider__control:last-of-type{
