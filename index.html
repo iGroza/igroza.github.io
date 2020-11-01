@@ -2,64 +2,81 @@
 <html lang="en">
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<meta charset="utf-8">
-	<meta name="description"
-		content="Сайт-портофолио fullstack js раработчика, Агейченко Кирилла. Занимаюсь разработкой более 1 одного года. react-native, vue.js, node.js">
-	<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-	<link rel="manifest" href="site.webmanifest">
-	<link rel="stylesheet defer" href="./css/font-awesome/css/all.css" />
-	<link rel="stylesheet defer" href="./css/font-awesome/css/brands.css" />
-	<link rel="stylesheet defer" href="./css/font-awesome/css/fontawesome.css" />
-	<link rel="stylesheet defer" href="./css/font-awesome/css/regular.css" />
-	<link rel="stylesheet defer" href="./css/font-awesome/css/solid.css" />
-	<link rel="stylesheet defer" href="./css/font-awesome/css/v4-shims.css" />
-	<link rel="stylesheet defer" href="./css/font.css" />
-	<link rel="stylesheet" href="css/styles.css" />
-	<title>Ageychenko Kirill</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./reset.css">
+    <link rel="stylesheet" href="./fullpage.css">
+    <script src="./fullpage.js"></script>
+    <script src="./librares.js"></script>
+    <script src="./parallax.js"></script>
 </head>
 
 <body>
-	<div class="container">
 
-		<header class="container__header">
-			<li class="fa fa-desktop fa-2x"></li>
-			<h1 class="header__text">Javascript разработчик</h1>
-		</header>
 
-		<div class="container__credits">
-			<a class="container__link" href="https://t.me/igroza" target="_blank">Ageychenko Kirill</a>
-			<strong>&middot;</strong>
-			<a class="container__link" href="https://t.me/igroza" target="_blank">
-				<i class="fa fa-send" title="Telegram"></i>
-			</a>
-		</div>
+    <div id="fullpage" onclick="location.hash='#about'">
+        <div class="section section__one">
+            <div class="space">
+                <div class="space__text text_normal" data-depth="0.5">
+                    <div class="text_dark">Hello,&nbsp;</div>
+                    <div>i'm Kirill</div>
+                    <div class="text_light">.</div>
+                </div>
+                <div class="space__text text_normal text_small" data-depth="0.3">
+                    <div class="text_light">and i'm a&nbsp;</div>
+                    <div class="text_dark">fullstack javascript&nbsp;</div>
+                    <div> programmer </div>
+                </div>
 
-		<div class="container__main">
-			<div class="container__content">
-				Пару лет писал на java примитивные приложения и игры(libgdx) под Android, решил использовать свои навыки
-				для заработка, освоил js, react native, vue, node js, сейчас работаю fullstack js около года.<br> Умею
-				немного на objective-c и swift - для написания плагина под Cordova хватило. <br>Знаю "сухой" технический
-				английский на уровне понимания документации.<br><br>
+                <div class="scroll-down__container">
+                    <div class="scroll-down__chevron"></div>
+                    <div class="scroll-down__chevron"></div>
+                    <div class="scroll-down__chevron"></div>
+                    <span class="scroll-down__text">Scroll down</span>
+                </div>
 
-				Все навыки указанные в резюме использовал и использую в разработке кросплатформенных мобильных
-				приложений.
-				<br>
-				<br>
-
-			</div>
-			<div class="container__slider">
-				<i class="fa fa-arrow-left slider__control" title="Telegram"></i>
-				<div class="slider__items">
-					
-				</div>
-				<i class="fa fa-arrow-right slider__control" title="Telegram"></i>
-			</div>
-		</div>
-	</div>
-	<script src="./js/script.js"></script>
-</body>
-
+            </div>
+            <div class="star__container"></div>
+        </div>
+        <div class="section section__two">
+            <div class="slide">
+                <div class="space__text text_normal" data-depth="0.5">
+                    <div class="text_small text_margin">
+                        Пару лет писал на java примитивные приложения и игры(libgdx) под Android, решил использовать свои навыки
+                    для заработка, освоил js, react native, vue, node js, сейчас работаю fullstack js около года.<br> Умею
+                    немного на objective-c и swift - для написания плагина под Cordova хватило. <br>Знаю "сухой" технический
+                    английский на уровне понимания документации.<br><br>
+    
+                    Все навыки указанные в резюме использовал и использую в разработке кросплатформенных мобильных
+                    приложений.
+                    </div>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="space__text text_normal" data-depth="0.5">
+                    <div class="text_light">Hello,&nbsp;</div>
+                    <div>world</>&nbsp;</div>
+                    <div class="text_light">.</div>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="space__text text_normal" data-depth="0.5">
+                    <div>Hello,&nbsp;</div>
+                    <div class="text_dark">world</>&nbsp;</div>
+                    <div class="text_light">.</div>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="space__text text_normal" data-depth="0.5">
+                    <div>Hello,&nbsp;</div>
+                    <div class="text_light">world</>&nbsp;</div>
+                    <div class="text_dark">.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./script.js" />
+    </body>
 </html>
