@@ -37,34 +37,37 @@ function generateStars(count) {
         calibrateY: true
     });
 
-try{
-    window.parallaxInstance = parallaxInstance
+    try {
+        window.parallaxInstance = parallaxInstance
 
-    let $html = $('html'),
-			$container = $('.star__container');
+        let $html = $('html'),
+            $container = $('.star__container');
 
-	// Hide browser menu.
-	(function() {
-		setTimeout(function(){window.scrollTo(0,0);},0);
-	})();
+        // Hide browser menu.
+        (function () {
+            setTimeout(function () { window.scrollTo(0, 0); }, 0);
+        })();
 
-	// Setup FastClick.
-	FastClick.attach(document.body);
+        // Setup FastClick.
+        FastClick.attach(document.body);
 
-	// Add touch functionality.
-	if (Hammer.HAS_TOUCHEVENTS) {
-		$container.hammer({drag_lock_to_axis: true});
-		_.tap($html, 'a,button,[data-tap]');
-	}
+        // Add touch functionality.
+        if (Hammer.HAS_TOUCHEVENTS) {
+            $container.hammer({ drag_lock_to_axis: true });
+            _.tap($html, 'a,button,[data-tap]');
+        }
 
-	// Add touch or mouse class to html element.
-	$html.addClass(Hammer.HAS_TOUCHEVENTS ? 'touch' : 'mouse');
-} catch (e){alert(e.message)}
-
+        // Add touch or mouse class to html element.
+        $html.addClass(Hammer.HAS_TOUCHEVENTS ? 'touch' : 'mouse');
+    } catch (e) {
+        alert(e.message)
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('start')
     generateStars(200)
+    console.log('middle')
 
     new fullpage('#fullpage', {
         navigation: true,
@@ -81,10 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (destination.anchor == "about") {
                 let i = -1;
                 const slidersCount = document.querySelectorAll('.slide').length
-                if(this.interval) return
+                if (this.interval) return
                 this.interval = setInterval(() => {
                     i = i < slidersCount ? ++i : 0;
-                    location.hash =  location.hash.match('about') ?  `#about/${i}` : location.hash
+                    location.hash = location.hash.match('about') ? `#about/${i}` : location.hash
                 }, 10000)
             } else {
                 clearInterval(this.interval || 0)
@@ -92,5 +95,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
+    console.log('end')
 })
