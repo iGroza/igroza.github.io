@@ -37,6 +37,7 @@ function generateStars(count) {
         calibrateY: true
     });
 
+try{
     window.parallaxInstance = parallaxInstance
 
     let $html = $('html'),
@@ -58,7 +59,7 @@ function generateStars(count) {
 
 	// Add touch or mouse class to html element.
 	$html.addClass(Hammer.HAS_TOUCHEVENTS ? 'touch' : 'mouse');
-
+} catch (e){alert(e.message)}
 
 }
 
