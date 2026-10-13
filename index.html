@@ -80,6 +80,20 @@
   .links a:nth-child(2) { animation-delay: 1.32s; }
   .links a:nth-child(3) { animation-delay: 1.44s; }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 700px) {
+    .links { gap: 14px; }
+    .links a {
+      width: 52px;
+      height: 52px;
+      min-height: 52px;
+      padding: 0;
+      justify-content: center;
+      gap: 0;
+      font-size: 0;
+      border-radius: 50%;
+    }
+    .links a svg { width: 22px; height: 22px; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .links a { animation: none; }
     .links a { transition: none; }
@@ -92,15 +106,15 @@
 <div class="flash" id="flash"></div>
 <div class="ui">
   <nav class="links" aria-label="Ссылки">
-    <a href="https://t.me/iGroza" target="_blank" rel="noopener noreferrer">
+    <a href="https://t.me/iGroza" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 3.1 2.6 10.5c-.9.4-.9 1 0 1.3l4.9 1.5 1.9 5.8c.2.6.4.8.8.8.4 0 .6-.2.9-.5l2.2-2.1 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.8c.3-1.2-.4-1.8-1.4-1.4z"/></svg>
       Telegram
     </a>
-    <a href="https://www.linkedin.com/in/agkirill/" target="_blank" rel="noopener noreferrer">
+    <a href="https://www.linkedin.com/in/agkirill/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4V21H3zM9.5 9.75h3.8v1.6h.05c.53-1 1.82-2 3.75-2 4 0 4.75 2.6 4.75 6V21h-4v-4.9c0-1.2 0-2.7-1.65-2.7s-1.9 1.3-1.9 2.6V21h-4z"/></svg>
       LinkedIn
     </a>
-    <a href="https://github.com/iGroza/" target="_blank" rel="noopener noreferrer">
+    <a href="https://github.com/iGroza/" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       GitHub
     </a>
@@ -208,6 +222,9 @@
         '    float s1=fract(aRand*91.7)*2.0-1.0, s2=fract(aRand*57.3)*2.0-1.0;',
         '    float wave = (1.1+0.4*sin(k*1.7))*sin((0.55+0.12*mod(k,3.0))*x - dr*uTime*(1.6+0.3*k) + k*2.1);',
         '    Tb=vec3(x, (k-2.0)*1.15 + wave + s1*0.25, 1.6*sin(0.48*x+uTime*0.85+k*1.4)+s2*0.3);',
+        '    // лёгкий спиральный заворот',
+        '    float spinA = uTime*0.4 + k*1.2 + x*0.08;',
+        '    Tb.xz = rot(Tb.xz, spinA*0.15);',
         '    ribF=smoothstep(0.0,0.10,u)*smoothstep(1.0,0.86,u);',
         '    ribCol=cool(k*0.22+u*0.4+uTime*0.06)*1.8;',
         '  }',
@@ -238,19 +255,18 @@
         '    p=uC+vec3(xy, rel.z*(1.0-eS*0.9)*(rib?0.45:0.85));',
         '    col=mix(warmCol,white,eS*0.55)*(1.0+1.4*eS); aK=0.4+0.35*eS; sK=0.6*(1.0-0.4*eS);',
         '  } else if(uPhase<2.5){',
-        '    float eB=(1.0-pow(max(1.0-uP,0.0),2.8))*smoothstep(0.0,0.06,uP), ra=smoothstep(0.0,0.1,uP);',
-        '    float flFade=1.0-smoothstep(0.75,1.0,uP);',
-        '    p=uC+dir*D*eB*1.05+vec3(perp*eB,0.0)+fl*smoothstep(0.2,0.9,uP)*flFade;',
-        '    vec3 c1=mix(warmCol,white,0.78)*2.3;',
-        '    vec3 c2=mix(white*2.3,warm(0.32+aRand*0.55),smoothstep(0.0,0.65,uP))*(1.0+1.6*(1.0-uP));',
-        '    col=mix(c1,c2,ra); aK=mix(0.75,0.56,ra); sK=mix(0.48,1.05+0.85*(1.0-uP),ra);',
+        '    float eB=pow(clamp(uP,0.0,1.0),0.62);',
+        '    p=uC+dir*D*eB+vec3(perp*eB,0.0);',
+        '    float hot=1.0-uP;',
+        '    col=mix(warmCol,white,0.7)*(1.2+1.15*hot);',
+        '    aK=mix(0.7,0.55,uP); sK=mix(0.58,0.92,uP);',
         '  } else {',
         '    vec3 B=uC+dir*D+vec3(perp,0.0);',
-        '    float dl=aRand*0.28+xn*0.18, m=smoothstep(dl,dl+0.55,uP), e=m*m*m*(m*(m*6.0-15.0)+10.0), arc=sin(m*3.14159);',
-        '    float flKeep=1.0-smoothstep(0.0,0.35,m);',
-        '    p=mix(B+fl*flKeep,T,e); p.xy=rot(p.xy,arc*(aRand-0.5)*1.8);',
-        '    vec3 textCol=mix(white*0.95, warmCol, 0.12+0.22*aEdge);',
-        '    col=mix(warm(0.32+aRand*0.55),textCol,e)*(1.0+0.6*arc); aK=mix(0.48,0.58+0.15*aEdge,m)+0.25*arc; sK=0.7-0.18*m+0.4*arc;',
+        '    float e=1.0-pow(1.0-clamp(uP,0.0,1.0),1.2);',
+        '    p=mix(B,T,e);',
+        '    vec3 textCol=mix(white*0.96, warmCol, 0.1+0.2*aEdge);',
+        '    col=mix(warm(0.35+aRand*0.45),textCol,e);',
+        '    aK=mix(0.55,0.56+0.14*aEdge,e); sK=mix(0.92,0.64,e);',
         '  }',
         '  float beat=0.5+0.5*sin(uTime*2.15-length(T.xy)*0.52), pulse=0.5+0.5*sin(uTime*2.15);',
         '  p.xy*=1.0+0.032*uPulse*pulse; col*=1.0+0.75*beat*uPulse; sK*=1.0+0.32*beat*uPulse;',
@@ -288,22 +304,21 @@
         '  vec2 q=vUv; float d=length(q); vec3 col=vec3(0.0); float al=0.0;',
         '  if(uRh>0.001){',
         '    float rh=uRh;',
-        '    float ring=exp(-sq((d-rh*1.03)/(rh*0.048+0.006)));',
-        '    float halo=exp(-max(d-rh,0.0)*0.95/(rh+0.25))*step(rh,d);',
+        '    float ring=exp(-sq((d-rh*1.02)/(rh*0.042+0.007)));',
+        '    float halo=exp(-max(d-rh,0.0)*2.4/(rh+0.12))*step(rh,d);',
         '    float ang=atan(q.y,q.x);',
-        '    float spiral=sin(ang*4.2 - uTime*4.0 + log(max(d+0.05,0.1))*5.8)*0.5+0.5;',
-        '    float spiral2=sin(ang*6.5 + uTime*3.1 + log(max(d+0.05,0.1))*4.0)*0.5+0.5;',
-        '    float spiral3=sin(ang*2.8 - uTime*2.2 + log(max(d+0.05,0.1))*3.5)*0.5+0.5;',
-        '    vec2 dq=vec2(q.x,q.y*3.6); float dd=length(dq);',
-        '    float band=exp(-sq((dd-rh*1.85)/(rh*0.55)));',
-        '    float streak=0.3+0.7*(spiral*0.55+spiral2*0.35+spiral3*0.4)*smoothstep(rh*0.6,rh*4.0,d);',
-        '    float dop=0.4+0.6*clamp(q.x/(rh*2.5),-1.0,1.0);',
-        '    vec3 hot=mix(vec3(1.0,0.22,0.01),vec3(1.0,0.92,0.7),clamp(band*dop*1.2 + spiral*0.45,0.0,1.0));',
-        '    vec3 disk=hot*band*streak*dop*(0.85+uHeat*1.3);',
-        '    vec3 outer=hot*(ring*2.1+halo*0.35*(0.5+uHeat))+disk;',
-        '    float ins=1.0-smoothstep(rh*0.85,rh*1.05,d);',
-        '    vec3 inner=disk*smoothstep(0.15,-0.3,q.y);',
-        '    col=mix(outer,inner,ins)*uFade; al=ins*uFade;',
+        '    float r=max(d,0.02);',
+        '    float spiral=sin(ang*2.5-log(r)*6.2-uTime*3.4)*0.5+0.5;',
+        '    float spiral2=sin(ang*2.5-log(r)*6.2-uTime*3.4+3.14159)*0.5+0.5;',
+        '    float arm=spiral*0.72+spiral2*0.5;',
+        '    float diskRad=exp(-sq((d-rh*1.28)/(rh*0.22+0.02)));',
+        '    float diskFade=smoothstep(rh*2.05,rh*1.12,d);',
+        '    float dop=0.62+0.38*clamp(q.x/(rh*1.6),-1.0,1.0);',
+        '    vec3 hot=mix(vec3(1.0,0.2,0.02),vec3(1.0,0.9,0.58),clamp(arm*dop,0.0,1.0));',
+        '    vec3 disk=hot*diskRad*arm*diskFade*dop*(0.8+uHeat);',
+        '    vec3 outer=hot*(ring*1.9+halo*0.22*(0.45+uHeat))+disk;',
+        '    float ins=1.0-smoothstep(rh*0.88,rh*1.02,d);',
+        '    col=outer*(1.0-ins)*uFade; al=ins*uFade;',
         '  }',
         '  if(uShock>=0.0) col+=vec3(1.0,0.75,0.42)*exp(-sq((d-uShock*27.0)/(0.28+uShock*1.5)))*(1.0-uShock)*1.6;',
         '  gl_FragColor=vec4(col,al);',
@@ -360,7 +375,7 @@
         addEventListener('touchend', ask); addEventListener('click', ask);
       }
     }
-    var T_HOLE = 4.4, T_SUCK = 7.2, T_BLAST = 10.8, T_FORM = 12.6, FLOAT = 5.2, RETURN = 3.4;
+    var T_HOLE = 4.4, T_SUCK = 7.2, T_BLAST = 10.6, T_FORM = 12.2, FLOAT = 5.0, RETURN = 3.4;
     function pr(t, s, d) { return Math.max(0, Math.min(1, (t - s) / d)); }
     function sm(a, b, x) { x = Math.max(0, Math.min(1, (x - a) / (b - a))); return x * x * (3 - 2 * x); }
     function sm5(x) { return x * x * x * (x * (x * 6 - 15) + 10); }
@@ -426,7 +441,7 @@
       var sph = !running ? 1 : (phase === 0 ? 1 - sm(0, 0.52, P) : 0);
       sph = Math.max(sph, ret);
       spin += dt * 0.26 * sph + (Math.round(spin / TAU) * TAU - spin) * (1 - Math.exp(-dt * 2.8 * (1 - sph) * (1 - sph)));
-      var holeish = rh > 0.001 || phase === 1 || phase === 2;
+      var holeish = rh > 0.001 || phase === 1 || phase === 2 || (phase === 3 && P < 0.75);
       parS += (((ptr.on && !holeish) ? 1 : 0) - parS) * (1 - Math.exp(-dt * 1.5));
       rx += ((-ptr.sy * 0.20 * parS) + Math.sin(t * 0.28) * 0.07 * sph - rx) * k;
       ry += ((ptr.sx * 0.28 * parS) - ry) * k;
