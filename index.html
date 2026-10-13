@@ -1,184 +1,458 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iGroza</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04050c">
+<title>iGroza</title>
+<meta name="description" content="iGroza — разработчик. Telegram, LinkedIn, GitHub.">
+<meta property="og:title" content="iGroza">
+<meta property="og:description" content="Разработчик. Telegram, LinkedIn, GitHub.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #04050c;
+    --ink: #eaf6ff;
+    --cyan: #19e6ff;
+    --violet: #9a5cff;
+    --pink: #ff3d9a;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  canvas { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 45%, transparent 32%, rgba(0,0,0,.82) 100%);
+  }
+  .flash { position: fixed; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: screen;
+    background: radial-gradient(circle at 50% 46%, #fff8e8 0%, rgba(255,180,90,.65) 22%, rgba(255,70,20,0) 68%); }
+  h1 {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .ui {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 0 20px calc(28px + env(safe-area-inset-bottom, 0px));
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+    pointer-events: none;
+  }
+  .links {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+    pointer-events: auto;
+  }
+  .links a {
+    display: inline-flex; align-items: center; gap: 10px;
+    min-height: 46px; padding: 0 20px;
+    color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600;
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.14);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    transition: transform .25s ease, border-color .25s, box-shadow .25s, background .25s;
+  }
+  .links a svg { width: 18px; height: 18px; fill: currentColor; flex: none; }
+  .links a:hover, .links a:focus-visible, .links a:active {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,.1);
+    border-color: var(--c);
+    box-shadow: 0 0 28px -4px var(--c), inset 0 0 18px -10px var(--c);
+    outline: none;
+  }
+  .links a:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+  .links a:nth-child(1) { --c: var(--cyan); }
+  .links a:nth-child(2) { --c: var(--violet); }
+  .links a:nth-child(3) { --c: var(--pink); }
+  .links a { animation: rise .9s cubic-bezier(.2,.8,.2,1) both; }
+  .links a:nth-child(1) { animation-delay: 1.2s; }
+  .links a:nth-child(2) { animation-delay: 1.32s; }
+  .links a:nth-child(3) { animation-delay: 1.44s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .links a { animation: none; }
+    .links a { transition: none; }
+  }
+</style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 15);
-        camera.lookAt(0, 0, 0);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        const canvas = document.createElement('canvas');
-        canvas.width = 32;
-        canvas.height = 32;
-        const ctx = canvas.getContext('2d');
-        const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-        gradient.addColorStop(0, 'white');
-        gradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 32, 32);
-        const texture = new THREE.CanvasTexture(canvas);
-
-        const particleCount = 300000;
-        const radius = 6;
-        const positions = new Float32Array(particleCount * 3);
-        const originalPositions = new Float32Array(particleCount * 3);
-        for (let i = 0; i < particleCount; i++) {
-            const theta = Math.acos(2 * Math.random() - 1);
-            const phi = 2 * Math.PI * Math.random();
-            const x = radius * Math.sin(theta) * Math.cos(phi);
-            const y = radius * Math.sin(theta) * Math.sin(phi);
-            const z = radius * Math.cos(theta);
-            positions[i * 3] = x;
-            positions[i * 3 + 1] = y;
-            positions[i * 3 + 2] = z;
-            originalPositions[i * 3] = x;
-            originalPositions[i * 3 + 1] = y;
-            originalPositions[i * 3 + 2] = z;
+<h1>iGroza</h1>
+<div class="vignette"></div>
+<div class="flash" id="flash"></div>
+<div class="ui">
+  <nav class="links" aria-label="Ссылки">
+    <a href="https://t.me/iGroza" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 3.1 2.6 10.5c-.9.4-.9 1 0 1.3l4.9 1.5 1.9 5.8c.2.6.4.8.8.8.4 0 .6-.2.9-.5l2.2-2.1 4.5 3.3c.8.5 1.4.2 1.6-.8l2.9-13.8c.3-1.2-.4-1.8-1.4-1.4z"/></svg>
+      Telegram
+    </a>
+    <a href="https://www.linkedin.com/in/agkirill/" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4V21H3zM9.5 9.75h3.8v1.6h.05c.53-1 1.82-2 3.75-2 4 0 4.75 2.6 4.75 6V21h-4v-4.9c0-1.2 0-2.7-1.65-2.7s-1.9 1.3-1.9 2.6V21h-4z"/></svg>
+      LinkedIn
+    </a>
+    <a href="https://github.com/iGroza/" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  if (!window.THREE) return;
+  var isTouch = matchMedia('(pointer: coarse)').matches;
+  var COUNT = (isTouch || innerWidth < 700) ? 85000 : 180000;
+  var R = 6, RING = 7.4, TEXT_W = 12, FOV = 60, CAM_Z = 15, TAU = Math.PI * 2;
+  var FONT = '800 220px Unbounded, ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+  var wait = (document.fonts && document.fonts.load)
+    ? Promise.race([document.fonts.load('800 100px Unbounded', 'iGroza'), new Promise(function (r) { setTimeout(r, 2500); })])
+    : Promise.resolve();
+  wait.then(init, init);
+  function init() {
+    var renderer;
+    try { renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' }); } catch (e) { return; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setClearColor(0x04050c, 1);
+    document.body.insertBefore(renderer.domElement, document.body.firstChild);
+    var flash = document.getElementById('flash');
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(FOV, innerWidth / innerHeight, 0.1, 100);
+    var group = new THREE.Group(); scene.add(group);
+    function sampleText(str) {
+      var W = 1700, H = 400, c = document.createElement('canvas'); c.width = W; c.height = H;
+      var g = c.getContext('2d');
+      g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = FONT; g.fillText(str, W / 2, H / 2 + 8);
+      var d = g.getImageData(0, 0, W, H).data;
+      function A(x, y) { return d[(y * W + x) * 4 + 3] > 128; }
+      var inn = [], edg = [], x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (var y = 4; y < H - 4; y += 2) for (var x = 4; x < W - 4; x += 2) {
+        if (!A(x, y)) continue;
+        (A(x - 3, y) && A(x + 3, y) && A(x, y - 3) && A(x, y + 3) ? inn : edg).push(x, y);
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+      var k = TEXT_W / (x1 - x0), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      function conv(a) {
+        var o = new Float32Array(a.length);
+        for (var i = 0; i < a.length; i += 2) { o[i] = (a[i] - cx) * k; o[i + 1] = -(a[i + 1] - cy) * k; }
+        return o;
+      }
+      return { inn: conv(inn), edg: conv(edg) };
+    }
+    var tx = sampleText('iGroza'), nIn = tx.inn.length / 2, nEd = tx.edg.length / 2;
+    var pos = new Float32Array(COUNT * 3), tgt = new Float32Array(COUNT * 3);
+    var rnd = new Float32Array(COUNT), edge = new Float32Array(COUNT), lane = new Float32Array(COUNT);
+    var ct = Math.cos(0.45), st = Math.sin(0.45);
+    for (var i = 0; i < COUNT; i++) {
+      var x, y, z;
+      if (i < COUNT * 0.12) {
+        var a = Math.random() * TAU, rr = RING + (Math.random() - 0.5) * 0.9, ry = (Math.random() - 0.5) * 0.25;
+        x = rr * Math.cos(a); z = rr * Math.sin(a); y = ry * ct - z * st; z = ry * st + z * ct;
+      } else {
+        var u = Math.random() * 2 - 1, p = Math.random() * TAU, s = Math.sqrt(1 - u * u), r = R * (0.92 + 0.08 * Math.random());
+        x = r * s * Math.cos(p); y = r * s * Math.sin(p); z = r * u;
+      }
+      pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
+      var isEdge = Math.random() < 0.34, arr = isEdge ? tx.edg : tx.inn, j = (Math.random() * (isEdge ? nEd : nIn)) | 0;
+      tgt[i * 3] = arr[j * 2] + (Math.random() - 0.5) * 0.025;
+      tgt[i * 3 + 1] = arr[j * 2 + 1] + (Math.random() - 0.5) * 0.025;
+      tgt[i * 3 + 2] = (Math.random() - 0.5) * 0.35;
+      edge[i] = isEdge ? 1 : 0;
+      if (Math.random() < 0.22) { lane[i] = 1 + ((Math.random() * 6) | 0); edge[i] = 0; }
+      rnd[i] = Math.random();
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('aTarget', new THREE.BufferAttribute(tgt, 3));
+    geo.setAttribute('aRand', new THREE.BufferAttribute(rnd, 1));
+    geo.setAttribute('aEdge', new THREE.BufferAttribute(edge, 1));
+    geo.setAttribute('aLane', new THREE.BufferAttribute(lane, 1));
+    var U = {
+      uTime: { value: 0 }, uPhase: { value: 0 }, uP: { value: 0 }, uPulse: { value: 0 }, uWave: { value: 0 }, uRet: { value: 0 },
+      uSize: { value: isTouch ? 1.75 : 1.65 }, uPR: { value: renderer.getPixelRatio() },
+      uPointer: { value: new THREE.Vector2(999, 999) }, uPtrPower: { value: 0 }, uC: { value: new THREE.Vector3() }
+    };
+    var mat = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+      vertexShader: [
+        'attribute vec3 aTarget; attribute float aRand; attribute float aEdge; attribute float aLane;',
+        'uniform float uTime, uPhase, uP, uPulse, uWave, uRet, uSize, uPR, uPtrPower; uniform vec2 uPointer; uniform vec3 uC;',
+        'varying vec3 vColor; varying float vAlpha;',
+        'float sq(float x){ return x*x; }',
+        'float hash(float n){ return fract(sin(n)*43758.5453123); }',
+        'vec3 cool(float t){ vec3 c1=vec3(0.08,0.88,1.00), c2=vec3(0.55,0.32,1.00), c3=vec3(1.00,0.22,0.58);',
+        '  t=fract(t)*3.0; if(t<1.0) return mix(c1,c2,t); if(t<2.0) return mix(c2,c3,t-1.0); return mix(c3,c1,t-2.0); }',
+        'vec3 warm(float t){ vec3 a=vec3(0.95,0.18,0.03), b=vec3(1.0,0.42,0.06), c=vec3(1.0,0.68,0.20), d=vec3(1.0,0.92,0.70);',
+        '  t=clamp(t,0.0,1.0)*3.0; if(t<1.0) return mix(a,b,t); if(t<2.0) return mix(b,c,t-1.0); return mix(c,d,t-2.0); }',
+        'vec2 rot(vec2 v,float a){ float s=sin(a), c=cos(a); return vec2(c*v.x-s*v.y, s*v.x+c*v.y); }',
+        'float laneY(float k,float x){ float dr=mod(k,2.0)<0.5?1.0:-1.0;',
+        '  return (k-2.0)*1.05+(0.85+0.3*sin(k*2.1))*sin((0.42+0.1*mod(k,3.0))*x-dr*uTime*(1.3+0.25*k)+k*1.7); }',
+        'void main(){',
+        '  vec3 dir=normalize(position+0.0001);',
+        '  float D=4.0+aRand*aRand*17.0+3.0*aRand; vec2 perp=vec2(-dir.y,dir.x)*aRand*2.2;',
+        '  bool rib=aLane>0.5; vec3 Tb=aTarget, ribCol=vec3(0.0); float ribF=1.0;',
+        '  if(rib){',
+        '    float k=aLane-1.0, sg=mod(k,2.0)<0.5?1.0:-1.0, dr=sg;',
+        '    float u=fract(fract(aRand*13.7)+sg*uTime*0.06*(1.0+0.15*k)), x=(u-0.5)*20.0;',
+        '    float s1=fract(aRand*91.7)*2.0-1.0, s2=fract(aRand*57.3)*2.0-1.0;',
+        '    float wave = (1.1+0.4*sin(k*1.7))*sin((0.55+0.12*mod(k,3.0))*x - dr*uTime*(1.6+0.3*k) + k*2.1);',
+        '    Tb=vec3(x, (k-2.0)*1.15 + wave + s1*0.25, 1.6*sin(0.48*x+uTime*0.85+k*1.4)+s2*0.3);',
+        '    ribF=smoothstep(0.0,0.10,u)*smoothstep(1.0,0.86,u);',
+        '    ribCol=cool(k*0.22+u*0.4+uTime*0.06)*1.8;',
+        '  }',
+        '  float xn=clamp(Tb.x/12.0+0.5,0.0,1.0), yn=clamp(Tb.y/3.2+0.5,0.0,1.0);',
+        '  vec3 alive=rib?vec3(0.0):vec3(sin(uTime*(1.15+aRand*1.5)+aRand*40.0),cos(uTime*(0.95+aRand*1.3)+aRand*31.0),sin(uTime*0.85+aRand*17.0))*0.13;',
+        '  float wInf=0.0; vec3 wD=vec3(0.0);',
+        '  if(!rib && uWave>0.001){',
+        '    for(int k=0;k<5;k++){ float dy=Tb.y-laneY(float(k),Tb.x), inl=exp(-sq(dy/0.75)); wInf+=inl; wD+=vec3(0.0,-dy*inl*0.38,inl*0.95); }',
+        '    wInf=min(wInf,1.35)*uWave; wD*=uWave;',
+        '  }',
+        '  vec3 T=Tb+alive+wD;',
+        '  float wt=clamp(0.12+yn*0.5+0.26*sin(xn*5.0-uTime*0.8)+aRand*0.1+aEdge*0.22,0.0,1.0);',
+        '  vec3 warmCol=rib?ribCol:(warm(wt)*(1.0+0.32*aEdge)+vec3(0.5,0.88,1.0)*wInf*0.75);',
+        '  vec3 coolCol=cool(aRand*0.35+position.y*0.045+uTime*0.07)*0.75, white=vec3(1.0,0.97,0.92);',
+        '  vec3 fl=vec3(sin(uTime*(0.52+aRand*0.95)+aRand*20.0),cos(uTime*(0.42+aRand*0.85)+aRand*17.0),sin(uTime*0.62+aRand*9.0))*0.85+dir*sin(uTime*0.52+aRand*6.0)*0.55;',
+        '  vec3 p, col; float aK=0.38, sK=0.58, tm=1.0;',
+        '  if(uPhase<0.5){',
+        '    float dl=aRand*0.22+xn*0.22, m=smoothstep(dl,dl+0.48,uP), arc=sin(m*3.14159), e=1.0-pow(1.0-m,2.8);',
+        '    p=mix(position,T,e); p.xz=rot(p.xz,arc*(aRand*5.2-1.6)); p+=dir*arc*(1.6+aRand*3.6);',
+        '    p+=dir*sin(uTime*1.35+position.y*0.95+aRand*6.2832)*0.15*(1.0-m);',
+        '    vec3 textCol=mix(white*0.92, warmCol, 0.15+0.25*aEdge);',
+        '    col=mix(coolCol,textCol,m)*(1.0+0.7*arc); aK=mix(0.32,0.55+0.18*aEdge,m)+0.3*arc; sK=0.65-0.15*m+0.55*arc; tm=m;',
+        '  } else if(uPhase<1.5){',
+        '    vec3 rel=T-uC; float rn=clamp(length(rel.xy)/11.5,0.0,1.0), dl=rn*0.38+aRand*0.03, s=smoothstep(dl,dl+0.42,uP), eS=s*s*s;',
+        '    float twist=eS*(6.5+28.0*(1.0-rn))*(rib?2.4:1.0);',
+        '    float radPow=pow(max(1.0-eS,0.0), rib?1.15:1.4);',
+        '    vec2 xy=rot(rel.xy,twist)*radPow;',
+        '    p=uC+vec3(xy, rel.z*(1.0-eS*0.9)*(rib?0.45:0.85));',
+        '    col=mix(warmCol,white,eS*0.55)*(1.0+1.4*eS); aK=0.4+0.35*eS; sK=0.6*(1.0-0.4*eS);',
+        '  } else if(uPhase<2.5){',
+        '    float eB=(1.0-pow(max(1.0-uP,0.0),2.8))*smoothstep(0.0,0.06,uP), ra=smoothstep(0.0,0.1,uP);',
+        '    float flFade=1.0-smoothstep(0.75,1.0,uP);',
+        '    p=uC+dir*D*eB*1.05+vec3(perp*eB,0.0)+fl*smoothstep(0.2,0.9,uP)*flFade;',
+        '    vec3 c1=mix(warmCol,white,0.78)*2.3;',
+        '    vec3 c2=mix(white*2.3,warm(0.32+aRand*0.55),smoothstep(0.0,0.65,uP))*(1.0+1.6*(1.0-uP));',
+        '    col=mix(c1,c2,ra); aK=mix(0.75,0.56,ra); sK=mix(0.48,1.05+0.85*(1.0-uP),ra);',
+        '  } else {',
+        '    vec3 B=uC+dir*D+vec3(perp,0.0);',
+        '    float dl=aRand*0.28+xn*0.18, m=smoothstep(dl,dl+0.55,uP), e=m*m*m*(m*(m*6.0-15.0)+10.0), arc=sin(m*3.14159);',
+        '    float flKeep=1.0-smoothstep(0.0,0.35,m);',
+        '    p=mix(B+fl*flKeep,T,e); p.xy=rot(p.xy,arc*(aRand-0.5)*1.8);',
+        '    vec3 textCol=mix(white*0.95, warmCol, 0.12+0.22*aEdge);',
+        '    col=mix(warm(0.32+aRand*0.55),textCol,e)*(1.0+0.6*arc); aK=mix(0.48,0.58+0.15*aEdge,m)+0.25*arc; sK=0.7-0.18*m+0.4*arc;',
+        '  }',
+        '  float beat=0.5+0.5*sin(uTime*2.15-length(T.xy)*0.52), pulse=0.5+0.5*sin(uTime*2.15);',
+        '  p.xy*=1.0+0.032*uPulse*pulse; col*=1.0+0.75*beat*uPulse; sK*=1.0+0.32*beat*uPulse;',
+        '  float rr=smoothstep(aRand*0.35,aRand*0.35+0.55,uRet), arR=sin(rr*3.14159);',
+        '  vec3 sp=position+dir*sin(uTime*1.35+position.y*0.95+aRand*6.2832)*0.15;',
+        '  p=mix(p,sp,rr); p.xz=rot(p.xz,arR*(aRand*3.2-1.1)); p+=dir*arR*1.6;',
+        '  col=mix(col,coolCol*0.85,rr); aK=mix(aK,0.28,rr); sK=mix(sK,0.55,rr);',
+        '  if(rib){ float k2=tm*(1.0-rr); aK*=mix(1.0,ribF*1.3,k2); sK*=mix(1.0,0.9,k2); }',
+        '  vec4 mv=modelViewMatrix*vec4(p,1.0);',
+        '  vec2 pt=uPointer*(-mv.z/15.0), d=mv.xy-pt; float dist=length(d);',
+        '  float f=exp(-dist*dist*0.26)*2.0*uPtrPower; mv.xy+=d/(dist+0.0001)*f; mv.z+=f*0.65;',
+        '  vColor=col; vAlpha=aK;',
+        '  gl_PointSize=uSize*uPR*(16.5/-mv.z)*(0.5+aRand*0.8)*sK;',
+        '  gl_Position=projectionMatrix*mv;',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'varying vec3 vColor; varying float vAlpha;',
+        'void main(){ float d=length(gl_PointCoord-0.5); if(d>0.46) discard;',
+        '  float soft=smoothstep(0.46,0.02,d);',
+        '  gl_FragColor=vec4(vColor, soft*vAlpha); }'
+      ].join('\n')
+    });
+    var points = new THREE.Points(geo, mat); points.frustumCulled = false; group.add(points);
+    var holeMat = new THREE.ShaderMaterial({
+      uniforms: { uRh: { value: 0 }, uHeat: { value: 0 }, uFade: { value: 0 }, uTime: U.uTime, uShock: { value: -1 } },
+      transparent: true, depthTest: false, depthWrite: false,
+      blending: THREE.CustomBlending, blendEquation: THREE.AddEquation,
+      blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+      vertexShader: 'varying vec2 vUv; void main(){ vUv=(uv-0.5)*56.0; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader: [
+        'uniform float uRh, uHeat, uFade, uTime, uShock; varying vec2 vUv;',
+        'float sq(float x){ return x*x; }',
+        'void main(){',
+        '  vec2 q=vUv; float d=length(q); vec3 col=vec3(0.0); float al=0.0;',
+        '  if(uRh>0.001){',
+        '    float rh=uRh;',
+        '    float ring=exp(-sq((d-rh*1.03)/(rh*0.048+0.006)));',
+        '    float halo=exp(-max(d-rh,0.0)*0.95/(rh+0.25))*step(rh,d);',
+        '    float ang=atan(q.y,q.x);',
+        '    float spiral=sin(ang*4.2 - uTime*4.0 + log(max(d+0.05,0.1))*5.8)*0.5+0.5;',
+        '    float spiral2=sin(ang*6.5 + uTime*3.1 + log(max(d+0.05,0.1))*4.0)*0.5+0.5;',
+        '    float spiral3=sin(ang*2.8 - uTime*2.2 + log(max(d+0.05,0.1))*3.5)*0.5+0.5;',
+        '    vec2 dq=vec2(q.x,q.y*3.6); float dd=length(dq);',
+        '    float band=exp(-sq((dd-rh*1.85)/(rh*0.55)));',
+        '    float streak=0.3+0.7*(spiral*0.55+spiral2*0.35+spiral3*0.4)*smoothstep(rh*0.6,rh*4.0,d);',
+        '    float dop=0.4+0.6*clamp(q.x/(rh*2.5),-1.0,1.0);',
+        '    vec3 hot=mix(vec3(1.0,0.22,0.01),vec3(1.0,0.92,0.7),clamp(band*dop*1.2 + spiral*0.45,0.0,1.0));',
+        '    vec3 disk=hot*band*streak*dop*(0.85+uHeat*1.3);',
+        '    vec3 outer=hot*(ring*2.1+halo*0.35*(0.5+uHeat))+disk;',
+        '    float ins=1.0-smoothstep(rh*0.85,rh*1.05,d);',
+        '    vec3 inner=disk*smoothstep(0.15,-0.3,q.y);',
+        '    col=mix(outer,inner,ins)*uFade; al=ins*uFade;',
+        '  }',
+        '  if(uShock>=0.0) col+=vec3(1.0,0.75,0.42)*exp(-sq((d-uShock*27.0)/(0.28+uShock*1.5)))*(1.0-uShock)*1.6;',
+        '  gl_FragColor=vec4(col,al);',
+        '}'
+      ].join('\n')
+    });
+    var hole = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), holeMat);
+    hole.renderOrder = 10; hole.frustumCulled = false; hole.visible = false; scene.add(hole);
+    var visH, visW, sphereR = 100, centerY = 0;
+    function layout() {
+      var w = innerWidth, h = innerHeight;
+      renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+      visH = 2 * CAM_Z * Math.tan(FOV * Math.PI / 360); visW = visH * camera.aspect;
+      var s = Math.max(0.28, Math.min(1.05, visW * 0.92 / (RING * 2 + 0.6)));
+      group.scale.setScalar(s); group.position.y = visH * 0.05;
+      hole.scale.set(56 * s, 56 * s, 1);
+      sphereR = R * s / visH * h; centerY = h / 2 - group.position.y / visH * h;
+    }
+    layout(); addEventListener('resize', layout);
+    function now() { return performance.now() / 1000; }
+    var running = false, returning = false, retStart = 0, lastI = -99, tl = 0, ret = 0;
+    var finger = false, gyro = false, gx = 0, gy = 0;
+    var ptr = { x: 0, y: 0, sx: 0, sy: 0, on: false, mouse: false };
+    function poke() { lastI = now(); }
+    function trigger() {
+      poke();
+      if (!running) { running = true; returning = false; tl = 0; ret = 0; }
+    }
+    function onPtr(e) {
+      ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = -(e.clientY / innerHeight * 2 - 1); ptr.on = true; ptr.mouse = true;
+      if (e.pointerType === 'touch') { finger = true; trigger(); return; }
+      var dist = Math.hypot(e.clientX - innerWidth / 2, e.clientY - centerY);
+      if (dist < sphereR * 1.15) trigger(); else if (dist < sphereR * 1.4) poke();
+    }
+    addEventListener('pointermove', onPtr);
+    addEventListener('pointerdown', function (e) { onPtr(e); trigger(); });
+    function endPtr(e) { if (e.pointerType === 'touch') { finger = false; ptr.mouse = false; poke(); } }
+    addEventListener('pointerup', endPtr); addEventListener('pointercancel', endPtr);
+    document.addEventListener('mouseleave', function () { ptr.mouse = false; });
+    addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    function onTilt(e) {
+      if (e.gamma == null) return;
+      gx = Math.max(-1, Math.min(1, e.gamma / 28)) * 0.55;
+      gy = -Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 28)) * 0.55;
+      gyro = true;
+    }
+    if (isTouch) {
+      addEventListener('deviceorientation', onTilt);
+      if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        var ask = function () {
+          DeviceOrientationEvent.requestPermission().catch(function () {});
+          removeEventListener('touchend', ask); removeEventListener('click', ask);
+        };
+        addEventListener('touchend', ask); addEventListener('click', ask);
+      }
+    }
+    var T_HOLE = 4.4, T_SUCK = 7.2, T_BLAST = 10.8, T_FORM = 12.6, FLOAT = 5.2, RETURN = 3.4;
+    function pr(t, s, d) { return Math.max(0, Math.min(1, (t - s) / d)); }
+    function sm(a, b, x) { x = Math.max(0, Math.min(1, (x - a) / (b - a))); return x * x * (3 - 2 * x); }
+    function sm5(x) { return x * x * x * (x * (x * 6 - 15) + 10); }
+    var clock = new THREE.Clock(), spin = 0, rx = 0, ry = 0, hx = 0, hy = 0;
+    var flv = 0, shS = 0, parS = 0, pushS = 0, followS = 0, tmp = new THREE.Vector3();
+    function frame() {
+      requestAnimationFrame(frame);
+      var dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime, nw = now();
+      U.uTime.value = t;
+      if (isTouch && !finger) {
+        if (gyro) { ptr.x = gx; ptr.y = gy; }
+        else { ptr.x = 0.18 * Math.sin(t * 0.45); ptr.y = 0.1 * Math.sin(t * 0.37 + 1); }
+        ptr.on = true; ptr.mouse = false;
+      }
+      if (running) {
+        if (!returning) {
+          tl += dt;
+          if (tl >= T_FORM + FLOAT) {
+            returning = true;
+            retStart = nw;
+            tl = T_FORM + FLOAT - 0.001;
+          }
+        } else {
+          ret = Math.min(1, ret + dt / RETURN);
+          if (ret >= 1) {
+            returning = false;
+            tl = 0;
+            ret = 0;
+          }
         }
-
-        const fontLoader = new THREE.FontLoader();
-        fontLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/refs/heads/dev/examples/fonts/optimer_bold.typeface.json?raw=true', (font) => {
-            const textGeometry = new THREE.TextGeometry('iGroza dev', {
-                font: font,
-                size: 3,
-                height: 0.1,
-            });
-            textGeometry.center();
-            const textPositionsArray = textGeometry.attributes.position.array;
-            const textPositions = new Float32Array(particleCount * 3);
-            for (let i = 0; i < particleCount; i++) {
-                const idx = Math.floor(Math.random() * (textPositionsArray.length / 3));
-                textPositions[i * 3] = textPositionsArray[idx * 3];
-                textPositions[i * 3 + 1] = textPositionsArray[idx * 3 + 1];
-                textPositions[i * 3 + 2] = textPositionsArray[idx * 3 + 2];
-            }
-
-            const geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-            const vertexShader = `
-                uniform float time;
-                varying vec3 vColor;
-                void main() {
-                    float t = (position.y / ${radius}.0 + 1.0) * 0.5;
-                    t = fract(t + time * 0.1);
-                    vec3 color1 = vec3(0.0, 1.0, 1.0); // циан
-                    vec3 color2 = vec3(1.0, 0.0, 1.0); // маджента
-                    vec3 color3 = vec3(0.0, 1.0, 0.0); // зеленый
-                    vec3 color;
-                    if (t < 0.333) {
-                        color = mix(color1, color2, t / 0.333);
-                    } else if (t < 0.666) {
-                        color = mix(color2, color3, (t - 0.333) / 0.333);
-                    } else {
-                        color = mix(color3, color1, (t - 0.666) / 0.334);
-                    }
-                    vColor = color;
-                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                    gl_PointSize = 0.05 * (300.0 / -mvPosition.z);
-                    gl_Position = projectionMatrix * mvPosition;
-                }
-            `;
-
-            const fragmentShader = `
-                uniform sampler2D pointTexture;
-                varying vec3 vColor;
-                void main() {
-                    gl_FragColor = vec4(vColor, 1.0) * texture2D(pointTexture, gl_PointCoord);
-                }
-            `;
-
-            const uniforms = {
-                time: { value: 0 },
-                pointTexture: { value: texture }
-            };
-
-            const shaderMaterial = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader,
-                blending: THREE.AdditiveBlending,
-                transparent: true
-            });
-
-            const points = new THREE.Points(geometry, shaderMaterial);
-            scene.add(points);
-
-            const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
-            const sphereMaterial = new THREE.MeshBasicMaterial({ visible: false });
-            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-            scene.add(sphere);
-
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
-            let isMouseOver = false;
-
-            window.addEventListener('mousemove', (event) => {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObject(sphere);
-                isMouseOver = intersects.length > 0;
-            });
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-
-            const clock = new THREE.Clock();
-            function animate() {
-                requestAnimationFrame(animate);
-                const delta = clock.getDelta();
-                const time = clock.getElapsedTime();
-                uniforms.time.value = time;
-
-                if (!isMouseOver) {
-                    points.rotation.y += 0.01;
-                } else {
-                    points.quaternion.copy(camera.quaternion);
-                }
-
-                const positions = points.geometry.attributes.position.array;
-                const speed = 5;
-                for (let i = 0; i < particleCount; i++) {
-                    let tx, ty, tz;
-                    if (isMouseOver) {
-                        tx = textPositions[i * 3];
-                        ty = textPositions[i * 3 + 1];
-                        tz = textPositions[i * 3 + 2];
-                    } else {
-                        tx = originalPositions[i * 3];
-                        ty = originalPositions[i * 3 + 1];
-                        tz = originalPositions[i * 3 + 2];
-                    }
-                    const cx = positions[i * 3];
-                    const cy = positions[i * 3 + 1];
-                    const cz = positions[i * 3 + 2];
-                    positions[i * 3] += (tx - cx) * speed * delta;
-                    positions[i * 3 + 1] += (ty - cy) * speed * delta;
-                    positions[i * 3 + 2] += (tz - cz) * speed * delta;
-                }
-                points.geometry.attributes.position.needsUpdate = true;
-
-                renderer.render(scene, camera);
-            }
-            animate();
-        });
-    </script>
+      }
+      var phase, P;
+      if (tl < T_SUCK) { phase = 0; P = pr(tl, 0, 3.1); }
+      else if (tl < T_BLAST) { phase = 1; P = pr(tl, T_SUCK, T_BLAST - T_SUCK); }
+      else if (tl < T_FORM) { phase = 2; P = pr(tl, T_BLAST, T_FORM - T_BLAST); }
+      else { phase = 3; P = pr(tl, T_FORM, FLOAT); }
+      U.uPhase.value = phase; U.uP.value = P; U.uRet.value = ret;
+      var textual = phase === 0 ? sm(0.72, 1, P) : phase === 1 ? 1 - sm(0, 0.16, P) : phase === 2 ? 0 : sm(0.65, 1, P);
+      U.uPulse.value = textual; U.uWave.value = textual;
+      var rh = 0, heat = 0, shock = -1, fl = 0, shake = 0, fade = 1;
+      if (tl > 0) {
+        if (tl < T_BLAST) {
+          var g = pr(tl, T_HOLE, 1.9), sk = pr(tl, T_SUCK, T_BLAST - T_SUCK);
+          rh = sm5(g) * (1.55 + 0.55 * sk); fade = sm(0, 0.45, g); heat = pr(tl, T_HOLE, T_BLAST - T_HOLE);
+          if (tl > T_SUCK) shake = 0.025 + 0.13 * sk * sk;
+          if (tl > T_BLAST - 0.55) fl = 0.32 * pr(tl, T_BLAST - 0.55, 0.55);
+        } else {
+          var c = 1 - pr(tl, T_BLAST, 0.48); rh = 2.05 * c * c; heat = 1;
+          var sp = pr(tl, T_BLAST, 1.7); shock = sp < 1 ? sp : -1;
+          fl = 0.92 * Math.exp(-(tl - T_BLAST) * 3.8); shake = 0.42 * Math.exp(-(tl - T_BLAST) * 4.2);
+        }
+      }
+      rh *= (1 - ret);
+      holeMat.uniforms.uRh.value = rh; holeMat.uniforms.uHeat.value = heat;
+      holeMat.uniforms.uFade.value = fade; holeMat.uniforms.uShock.value = shock;
+      hole.visible = rh > 0.001 || shock >= 0;
+      flv += (fl - flv) * (1 - Math.exp(-dt * 16)); flash.style.opacity = flv.toFixed(3);
+      shS += (shake - shS) * (1 - Math.exp(-dt * 12));
+      camera.position.set((Math.sin(t * 41) * 0.55 + Math.sin(t * 68 + 1.2) * 0.38) * shS,
+                          (Math.sin(t * 35 + 2.0) * 0.55 + Math.sin(t * 57) * 0.38) * shS, CAM_Z);
+      var k = 1 - Math.exp(-dt * 5.5);
+      ptr.sx += (ptr.x - ptr.sx) * k; ptr.sy += (ptr.y - ptr.sy) * k;
+      var sph = !running ? 1 : (phase === 0 ? 1 - sm(0, 0.52, P) : 0);
+      sph = Math.max(sph, ret);
+      spin += dt * 0.26 * sph + (Math.round(spin / TAU) * TAU - spin) * (1 - Math.exp(-dt * 2.8 * (1 - sph) * (1 - sph)));
+      var holeish = rh > 0.001 || phase === 1 || phase === 2;
+      parS += (((ptr.on && !holeish) ? 1 : 0) - parS) * (1 - Math.exp(-dt * 1.5));
+      rx += ((-ptr.sy * 0.20 * parS) + Math.sin(t * 0.28) * 0.07 * sph - rx) * k;
+      ry += ((ptr.sx * 0.28 * parS) - ry) * k;
+      group.rotation.set(rx, spin + ry, 0);
+      group.updateMatrixWorld(true);
+      if (phase < 2) {
+        var gsc = group.scale.x, cy0 = group.position.y;
+        followS += (((nw - lastI < 1.4 || finger) ? 1 : 0) - followS) * (1 - Math.exp(-dt * 1.8));
+        var txw = ptr.sx * visW / 2 * followS, tyw = cy0 + (ptr.sy * visH / 2 - cy0) * followS;
+        var ddx = txw, ddy = tyw - cy0, dl = Math.hypot(ddx, ddy), lim = 4.8 * gsc;
+        if (dl > lim) { ddx *= lim / dl; ddy *= lim / dl; }
+        hx += (ddx - hx) * (1 - Math.exp(-dt * 4.5)); hy += (cy0 + ddy - hy) * (1 - Math.exp(-dt * 4.5));
+        hole.position.set(hx, hy, 0);
+        tmp.set(hx, hy, 0); group.worldToLocal(tmp); tmp.z = 0;
+        U.uC.value.copy(tmp);
+      }
+      U.uPointer.value.set(ptr.sx * visW / 2, ptr.sy * visH / 2);
+      var pushT = (ptr.mouse && ptr.on && phase !== 1 && phase !== 2) ? 1 - Math.min(1, rh / 0.75) : 0;
+      pushS += (pushT - pushS) * (1 - Math.exp(-dt * 2.2));
+      U.uPtrPower.value = pushS;
+      renderer.render(scene, camera);
+    }
+    trigger();
+    frame();
+  }
+})();
+</script>
 </body>
 </html>
